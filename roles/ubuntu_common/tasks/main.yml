@@ -24,7 +24,7 @@
   ansible.builtin.apt:
     name: postfix, libsasl2-modules
   become: true
-  notify: restart postfix
+  notify: Restart postfix
 
 - name: Configure postfix credentials
   ansible.builtin.copy:
@@ -34,13 +34,13 @@
     mode: "600"
   register: postmap_credentials
   become: true
-  notify: restart postfix
+  notify: Restart postfix
 
 - name: Postmap credentials
   ansible.builtin.command: postmap /etc/postfix/sasl/sasl_passwd
   when: postmap_credentials is changed
   become: true
-  notify: restart postfix
+  notify: Restart postfix
 
 - name: Secure postfix credentials
   ansible.builtin.file:
@@ -53,8 +53,8 @@
     - /etc/postfix/sasl/sasl_passwd.db
   become: true
   notify:
-    - restart postfix
-    - test postfix
+    - Restart postfix
+    - Restart postfix
 
 - name: Configure postfix relayhost
   ansible.builtin.replace:
@@ -62,7 +62,7 @@
     regexp: "^relayhost = $"
     replace: "relayhost = [smtp.gmail.com]:587"
   become: true
-  notify: restart postfix
+  notify: Restart postfix
 
 - name: Configure postfix smtp settings
   ansible.builtin.blockinfile:
@@ -73,7 +73,7 @@
       smtp_sasl_password_maps = hash:/etc/postfix/sasl/sasl_passwd
       smtp_tsl_CAfile = /etc/ssl/certs/ca-certificates.crt
   become: true
-  notify: restart postfix
+  notify: Restart postfix
 
 - name: Configure postfix smtp security level
   ansible.builtin.replace:
@@ -81,7 +81,7 @@
     regexp: "^smtp_tls_security_level ="
     replace: "smtp_tls_security_level = encrypt"
   become: true
-  notify: restart postfix
+  notify: Restart postfix
 
 - name: Enable postfix service
   ansible.builtin.service:
@@ -94,7 +94,7 @@
   ansible.builtin.apt:
     name: unattended-upgrades
   become: true
-  notify: restart unattended-upgrades
+  notify: Restart unattended-upgrades
 
 - name: Configure unattended-upgrades
   ansible.builtin.blockinfile:
@@ -106,7 +106,7 @@
       Unattended-Upgrade::Remove-Unused-Dependencies "true";
     marker: "// {mark} ANSIBLE MANAGED BLOCK"
   become: true
-  notify: restart unattended-upgrades
+  notify: Restart unattended-upgrades
 
 - name: Configure unattented-upgrades, enable "updates" origin
   ansible.builtin.replace:
@@ -114,7 +114,7 @@
     regexp: '^\/\/\t"\$\{distro_id\}:\$\{distro_codename\}-updates";'
     replace: '\t"${distro_id}:${distro_codename}-updates";'
   become: true
-  notify: restart unattended-upgrades
+  notify: Restart unattended-upgrades
 
 - name: Install apticron, apt-listchanges, needrestart
   ansible.builtin.apt:
@@ -132,4 +132,4 @@
   ansible.builtin.apt:
     name: fail2ban
   become: true
-  notify: restart fail2ban
+  notify: Restart fail2ban
