@@ -1,6 +1,6 @@
 ---
 # Ansible Group Variable file
 
-gmail_user: nevros.sevriem@gmail.com
+gmail_user: your_new_Gmail_account
 gmail_pass: "{{ vault_gmail_pass }}"
-test_address: sevriem@gmail.com
+test_address: email_address_to_send_to
