@@ -1,0 +1,5 @@
+[ubuntu_vms]
+hl-test.sevriem.net ansible_user=sevriem
+
+[ubuntu_common]
+hl-test.sevriem.net

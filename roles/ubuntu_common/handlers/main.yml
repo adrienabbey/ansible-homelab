@@ -1,0 +1,29 @@
+---
+# Ansible Handler for Common Ubuntu Configuration
+
+- name: Restart postfix
+  ansible.builtin.service:
+    name: postfix
+    enabled: true
+    state: restarted
+  become: true
+
+- name: Test postfix
+  community.general.mail:
+    to: "{{ test_address }}"
+    subject: "Test email from {{ ansible_hostname }}"
+    body: "Reading this email confirms that email configuration was successful."
+
+- name: Restart unattended-upgrades
+  ansible.builtin.service:
+    name: unattended-upgrades
+    enabled: true
+    state: restarted
+  become: true
+
+- name: Restart fail2ban
+  ansible.builtin.service:
+    name: fail2ban
+    enabled: true
+    state: restarted
+  become: true

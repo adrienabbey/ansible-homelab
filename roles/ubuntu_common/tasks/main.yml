@@ -1,0 +1,135 @@
+---
+# Ansible Role Playbook, Ubuntu Common Configuration
+
+- name: Install UFW
+  ansible.builtin.apt:
+    name: ufw
+    update_cache: true
+  become: true
+
+- name: Enable UFW and permit SSH
+  community.general.ufw:
+    state: enabled
+    name: OpenSSH
+    rule: allow
+  become: true
+
+- name: Set Timezone
+  community.general.timezone:
+    name: "America/New_York"
+  become: true
+
+# https://www.linode.com/docs/guides/configure-postfix-to-send-mail-using-gmail-and-google-apps-on-debian-or-ubuntu/
+- name: Install postfix
+  ansible.builtin.apt:
+    name: postfix, libsasl2-modules
+  become: true
+  notify: restart postfix
+
+- name: Configure postfix credentials
+  ansible.builtin.copy:
+    dest: /etc/postfix/sasl/sasl_passwd
+    force: false
+    content: "[smtp.gmail.com]:587 {{ gmail_user }}:{{ gmail_pass }}"
+    mode: "600"
+  register: postmap_credentials
+  become: true
+  notify: restart postfix
+
+- name: Postmap credentials
+  ansible.builtin.command: postmap /etc/postfix/sasl/sasl_passwd
+  when: postmap_credentials is changed
+  become: true
+  notify: restart postfix
+
+- name: Secure postfix credentials
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: "600"
+  with_items:
+    - /etc/postfix/sasl/sasl_passwd
+    - /etc/postfix/sasl/sasl_passwd.db
+  become: true
+  notify:
+    - restart postfix
+    - test postfix
+
+- name: Configure postfix relayhost
+  ansible.builtin.replace:
+    path: /etc/postfix/main.cf
+    regexp: "^relayhost = $"
+    replace: "relayhost = [smtp.gmail.com]:587"
+  become: true
+  notify: restart postfix
+
+- name: Configure postfix smtp settings
+  ansible.builtin.blockinfile:
+    path: /etc/postfix/main.cf
+    block: |
+      smtp_sasl_auth_enable = yes
+      smtp_sasl_security_options = noanonymous
+      smtp_sasl_password_maps = hash:/etc/postfix/sasl/sasl_passwd
+      smtp_tsl_CAfile = /etc/ssl/certs/ca-certificates.crt
+  become: true
+  notify: restart postfix
+
+- name: Configure postfix smtp security level
+  ansible.builtin.replace:
+    path: /etc/postfix/main.cf
+    regexp: "^smtp_tls_security_level ="
+    replace: "smtp_tls_security_level = encrypt"
+  become: true
+  notify: restart postfix
+
+- name: Enable postfix service
+  ansible.builtin.service:
+    name: postfix
+    enabled: true
+    state: started
+  become: true
+
+- name: Install unattended-upgrades
+  ansible.builtin.apt:
+    name: unattended-upgrades
+  become: true
+  notify: restart unattended-upgrades
+
+- name: Configure unattended-upgrades
+  ansible.builtin.blockinfile:
+    path: /etc/apt/apt.conf.d/50unattended-upgrades
+    block: |
+      Unattended-Upgrade::Mail "{{ test_address }}";
+      Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+      Unattended-Upgrade::Remove-New-Unused-Dependencies "true";
+      Unattended-Upgrade::Remove-Unused-Dependencies "true";
+    marker: "// {mark} ANSIBLE MANAGED BLOCK"
+  become: true
+  notify: restart unattended-upgrades
+
+- name: Configure unattented-upgrades, enable "updates" origin
+  ansible.builtin.replace:
+    path: /etc/apt/apt.conf.d/50unattended-upgrades
+    regexp: '^\/\/\t"\$\{distro_id\}:\$\{distro_codename\}-updates";'
+    replace: '\t"${distro_id}:${distro_codename}-updates";'
+  become: true
+  notify: restart unattended-upgrades
+
+- name: Install apticron, apt-listchanges, needrestart
+  ansible.builtin.apt:
+    name: apticron, apt-listchanges, needrestart
+  become: true
+
+- name: Configure apticron
+  ansible.builtin.copy:
+    dest: /etc/apticron/apticron.conf
+    mode: "644"
+    content: 'EMAIL="{{ test_address }}"'
+  become: true
+
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+  become: true
+  notify: restart fail2ban

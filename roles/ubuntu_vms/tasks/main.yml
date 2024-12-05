@@ -1,0 +1,15 @@
+---
+# Ansible Task Playbook for Ubuntu VMs
+
+- name: Install qemu-guest-agent
+  ansible.builtin.apt:
+    name: qemu-guest-agent
+    update_cache: true
+  become: true
+
+- name: Enable qemu-guest-agent service
+  ansible.builtin.service:
+    name: qemu-guest-agent
+    enabled: true
+    state: started
+  become: true

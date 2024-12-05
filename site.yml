@@ -1,0 +1,12 @@
+---
+# Ansible Master Playbook
+
+- name: Apply common Ubuntu configuration
+  hosts: ubuntu_common
+  roles:
+    - ubuntu_common
+
+- name: Apply Ubuntu VM configuration
+  hosts: ubuntu_vms
+  roles:
+    - ubuntu_vms
