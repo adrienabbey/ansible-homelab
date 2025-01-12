@@ -32,28 +32,10 @@
     force: false
     content: "[smtp.gmail.com]:587 {{ gmail_user }}:{{ gmail_pass }}"
     mode: "600"
-  register: postmap_credentials
   become: true
-  notify: Restart postfix
-
-- name: Postmap credentials
-  ansible.builtin.command: postmap /etc/postfix/sasl/sasl_passwd
-  when: postmap_credentials is changed
-  become: true
-  notify: Restart postfix
-
-- name: Secure postfix credentials
-  ansible.builtin.file:
-    path: "{{ item }}"
-    owner: root
-    group: root
-    mode: "600"
-  with_items:
-    - /etc/postfix/sasl/sasl_passwd
-    - /etc/postfix/sasl/sasl_passwd.db
-  become: true
+  no_log: true
   notify:
-    - Restart postfix
+    - Postmap credentials
     - Restart postfix
 
 - name: Configure postfix relayhost
@@ -83,13 +65,6 @@
   become: true
   notify: Restart postfix
 
-- name: Enable postfix service
-  ansible.builtin.service:
-    name: postfix
-    enabled: true
-    state: started
-  become: true
-
 - name: Install unattended-upgrades
   ansible.builtin.apt:
     name: unattended-upgrades
@@ -100,7 +75,7 @@
   ansible.builtin.blockinfile:
     path: /etc/apt/apt.conf.d/50unattended-upgrades
     block: |
-      Unattended-Upgrade::Mail "{{ test_address }}";
+      Unattended-Upgrade::Mail "{{ notification_address }}";
       Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
       Unattended-Upgrade::Remove-New-Unused-Dependencies "true";
       Unattended-Upgrade::Remove-Unused-Dependencies "true";
@@ -125,7 +100,7 @@
   ansible.builtin.copy:
     dest: /etc/apticron/apticron.conf
     mode: "644"
-    content: 'EMAIL="{{ test_address }}"'
+    content: 'EMAIL="{{ notification_address }}"'
   become: true
 
 - name: Install fail2ban

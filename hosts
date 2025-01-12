@@ -1,5 +1,5 @@
 [ubuntu_vms]
-hl-test.sevriem.net ansible_user=sevriem
+#ceg2350.sevriem.lan ansible_user=adrienabbey
 
 [ubuntu_common]
-hl-test.sevriem.net
+#pve2.sevriem.net ansible_user=root

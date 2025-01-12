@@ -4,7 +4,6 @@
 - name: Install qemu-guest-agent
   ansible.builtin.apt:
     name: qemu-guest-agent
-    update_cache: true
   become: true
 
 - name: Enable qemu-guest-agent service

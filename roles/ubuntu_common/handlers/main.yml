@@ -8,9 +8,30 @@
     state: restarted
   become: true
 
+- name: Postmap credentials
+  ansible.builtin.command: postmap /etc/postfix/sasl/sasl_passwd
+  become: true
+  changed_when: true
+  notify:
+    - Secure postfix credentials
+    - Restart postfix
+    - Test postfix
+
+- name: Secure postfix credentials
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: "600"
+  with_items:
+    - /etc/postfix/sasl/sasl_passwd
+    - /etc/postfix/sasl/sasl_passwd.db
+  become: true
+  notify: Restart postfix
+
 - name: Test postfix
   community.general.mail:
-    to: "{{ test_address }}"
+    to: "{{ notification_address }}"
     subject: "Test email from {{ ansible_hostname }}"
     body: "Reading this email confirms that email configuration was successful."
 

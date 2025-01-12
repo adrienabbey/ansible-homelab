@@ -1,6 +1,8 @@
 ---
 # Ansible Group Variable file
 
-gmail_user: your_new_Gmail_account
+# This is the Gmail account that will be used to send notifications FROM:
+gmail_user: REPLACEME@gmail.com
 gmail_pass: "{{ vault_gmail_pass }}"
-test_address: email_address_to_send_to
+# This is the Gmail account that will be used to send notifications TO:
+notification_address: REPLACEME@gmail.com
