@@ -21,7 +21,7 @@
   - **If you decide not to create the file**: edit the `ansible.cfg` file, commenting out the `vault_password_file` line.
   - The `.gitignore` file included with this repo excludes this file from git pushes.
 - Generate a `vault.yml` file containing your Gmail app password.
-  - Use `ansible-vault create group_vars/ubuntu_common/.vault_pass` to create the file.  This will open Vim, where you can paste the Gmail app password generated earlier.  Use the syntax listed below.  When you write and quit Vim, Ansible will encrypt the file using your vault password.
+  - Use `ansible-vault create group_vars/ubuntu_common/.vault_pass` to create the file.  This will open Vim, where you can paste the Gmail app password generated earlier.  Use the syntax listed below, **deleting the spaces in the password**.  When you write and quit Vim, Ansible will encrypt the file using your vault password.
   ```yaml
   ---
   # Ansible Encrypted Vault of Group Variables
