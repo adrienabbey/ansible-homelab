@@ -21,7 +21,13 @@
   - **If you decide not to create the file**: edit the `ansible.cfg` file, commenting out the `vault_password_file` line.
   - The `.gitignore` file included with this repo excludes this file from git pushes.
 - Generate a `vault.yml` file containing your Gmail app password.
-  - Use `ansible-vault create group_vars/ubuntu_common/.vault_pass` to create the file.  This will open Vim, where you can paste the Gmail app password generated earlier.  When you write and quit Vim, Ansible will encrypt the file using your vault password.
+  - Use `ansible-vault create group_vars/ubuntu_common/.vault_pass` to create the file.  This will open Vim, where you can paste the Gmail app password generated earlier.  Use the syntax listed below.  When you write and quit Vim, Ansible will encrypt the file using your vault password.
+  ```yaml
+  ---
+  # Ansible Encrypted Vault of Group Variables
+
+  vault_gmail_pass: PASTE_PASSWORD_HERE
+  ```
 - Edit the `hosts` file, adding the VMs you wish to apply configuration to.  Be sure to remove any VMs that are not running or you don't want to change.
 - Install Ansible *on the system running the playbook*: `sudo apt install ansible`
   - Note: You do NOT need Ansible on any of your target machines.  This Ansible playbook is designed to run from a single machine, and will use SSH and Python on each target machine to configure devices.
