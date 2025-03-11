@@ -6,9 +6,9 @@
     name: qemu-guest-agent
   become: true
 
-- name: Enable qemu-guest-agent service
-  ansible.builtin.service:
-    name: qemu-guest-agent
-    enabled: true
-    state: started
-  become: true
+# - name: Enable qemu-guest-agent service
+#   ansible.builtin.service:
+#     name: qemu-guest-agent
+#     enabled: true
+#     state: started
+#   become: true
